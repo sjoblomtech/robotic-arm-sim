@@ -51,6 +51,9 @@ int main(void) {
         printf("    Joint %d: (%.2f, %.2f)\n", i, positions[i].x, positions[i].y);
     }
 
+    // Print end effektor position
+    printf("\nEnd effektor position: (%.2f, %.2f)\n", positions[arm.num_links].x,
+           positions[arm.num_links].y);
     free(arm.links);
     return 0;
 }
@@ -65,7 +68,7 @@ void print_arm(Arm arm) {
         printf("Link %d:\n", i + 1);
         printf("    Length: %.2f units\n", arm.links[i].length);
         printf("    Joint: %s\n", arm.links[i].joint.name);
-        printf("    Angle: %.2f\n\n", arm.links[i].joint.angle);
+        printf("    Angle: %.2f°\n\n", arm.links[i].joint.angle);
     }
 
     printf("=================================\n");
