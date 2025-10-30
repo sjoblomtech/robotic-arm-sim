@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <stdlib.h>
 
 #ifndef M_PI
     #define M_PI 3.14159265358979323846
@@ -31,28 +32,15 @@ typedef struct {
 void print_arm(Arm arm);
 double deg2rad(double degrees);
 void jointPositions(const Arm* arm, Vec2* positions);
+void buildArm(Arm* arm);
 
 // Main
 int main(void) {
-    Arm arm;
+    Arm arm = {0};
 
-    arm.num_links = 2;
+    buildArm(&arm);
 
-    // Array of 2 links
-    Link links[2];
 
-    // Link 1
-    links[0].length = 10.0;
-    strcpy(links[0].joint.name, "Joint 1");
-    links[0].joint.angle = 45.0;
-
-    // Link 2
-    links[1].length = 7.0;
-    strcpy(links[1].joint.name, "Joint 2");
-    links[1].joint.angle = 30.0;
-
-    // Point arm.links to the array
-    arm.links = links;
 
     // Compute and display positions
     Vec2 positions[arm.num_links + 1];
@@ -63,6 +51,7 @@ int main(void) {
         printf("    Joint %d: (%.2f, %.2f)\n", i, positions[i].x, positions[i].y);
     }
 
+    free(arm.links);
     return 0;
 }
 
@@ -98,4 +87,39 @@ void jointPositions(const Arm* arm, Vec2* positions) {
         positions[i + 1].x = positions[i].x + arm->links[i].length * cos(theta);
         positions[i + 1].y = positions[i].y + arm->links[i].length * sin(theta);
         }
+}
+
+// Build arm from input
+void buildArm(Arm* arm) {
+    // Number of links
+    do {
+        printf("Enter number of links (1 - 3): ");
+        scanf("%d", &arm->num_links);
+        if (arm->num_links < 1 || arm->num_links > 3)
+            printf("Please enter a number between 1 and 3.\n");
+    } while (arm->num_links < 1 || arm->num_links > 3);
+
+    // Allocate memory
+    arm->links = malloc(arm->num_links * sizeof(Link));
+    if (arm->links == NULL) {
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
+
+    // Input data
+    for (int i = 0; i < arm->num_links; i++) {
+        printf("\n-- Link %d --\n", i + 1);
+
+        do {
+            printf("Enter length: ");
+            scanf("%lf", &arm->links[i].length);
+            if (arm->links[i].length <= 0)
+                printf("Length must be positive.\n");
+        } while (arm->links[i].length <= 0);
+
+        printf("Enter angle (degrees): ");
+        scanf("%lf", &arm->links[i].joint.angle);
+
+        sprintf(arm->links[i].joint.name, "joint %d", i +1);
+    }
 }
